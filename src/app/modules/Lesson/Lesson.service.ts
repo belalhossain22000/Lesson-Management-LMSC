@@ -187,8 +187,7 @@ const submitTaskResponse = async (
   studentId: string,
   content: string
 ) => {
-
-    console.log(taskId);
+  console.log(taskId);
   // Check if task exists
   const task = await prisma.lessonTask.findUnique({
     where: { id: taskId },
@@ -297,6 +296,150 @@ const deleteLesson = async (id: string) => {
   return null;
 };
 
+// reterive single user from the database
+const getTeacherLessonsWithStats = async (teacherId: string) => {
+  // Get all lessons owned by teacher
+  const lessons = await prisma.lesson.findMany({
+    where: { teacherId },
+    include: {
+      lessonViews: true,
+      quizAttempts: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return lessons.map((lesson) => ({
+    lessonId: lesson.id,
+    title: lesson.title,
+    viewedCount: lesson.lessonViews.length,
+    completedQuizCount: new Set(lesson.quizAttempts.map((q) => q.studentId))
+      .size,
+  }));
+};
+
+// reterive single user from the database
+const getLessonEngagement = async (lessonId: string) => {
+  const task = await prisma.lessonTask.findFirst({
+    where: { lessonId },
+  });
+
+  const students = await prisma.student.findMany({
+    orderBy: { createdAt: "asc" },
+  });
+
+  const engagement = await Promise.all(
+    students.map(async (student) => {
+      const viewed = await prisma.lessonView.findFirst({
+        where: { lessonId, studentId: student.id },
+      });
+
+      const quizAttempt = await prisma.quizAttempt.findFirst({
+        where: { lessonId, studentId: student.id },
+        orderBy: { submittedAt: "desc" },
+      });
+
+      const submission = task
+        ? await prisma.taskSubmission.findFirst({
+            where: { taskId: task.id, studentId: student.id },
+          })
+        : null;
+
+      return {
+        studentId: student.id,
+        studentName: student.name,
+
+        viewed: !!viewed,
+
+        quizSubmitted: !!quizAttempt,
+        quizScore: quizAttempt?.score || null,
+
+        taskSubmitted: !!submission,
+        taskMark: submission?.mark || null,
+      };
+    })
+  );
+
+  return engagement;
+};
+
+// reterive single user from the database
+const getQuizAttemptsForStudent = async (
+  lessonId: string,
+  studentId: string
+) => {
+  const attempts = await prisma.quizAttempt.findMany({
+    where: { lessonId, studentId },
+    orderBy: { submittedAt: "desc" },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return attempts.map((a) => ({
+    attemptId: a.id,
+    studentId: a.student.id,
+    studentName: a.student.name,
+    score: a.score,
+    submittedAt: a.submittedAt,
+  }));
+};
+
+const getTaskSubmissionsForLesson = async (lessonId: string) => {
+  // Find the task for this lesson (1 task per lesson)
+  const task = await prisma.lessonTask.findFirst({
+    where: { lessonId },
+  });
+
+  if (!task) {
+    return [];
+  }
+
+  // Get all submissions for this task
+  const submissions = await prisma.taskSubmission.findMany({
+    where: { taskId: task.id },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: { submittedAt: "desc" },
+  });
+
+  return submissions.map((s) => ({
+    submissionId: s.id,
+    studentId: s.student.id,
+    studentName: s.student.name,
+    studentEmail: s.student.email,
+    content: s.content,
+    mark: s.mark,
+    submittedAt: s.submittedAt,
+  }));
+};
+
+// reterive single user from the database
+const updateTaskMark = async (submissionId: string, mark: number) => {
+  const updated = await prisma.taskSubmission.update({
+    where: { id: submissionId },
+    data: { mark },
+  });
+
+  return {
+    message: "Mark updated successfully",
+    submissionId: updated.id,
+    mark: updated.mark,
+  };
+};
+
 export const lessonService = {
   createLesson,
   getAllLessons,
@@ -307,4 +450,9 @@ export const lessonService = {
   getTaskSubmissionsByStudent,
   updateLesson,
   deleteLesson,
+  getTeacherLessonsWithStats,
+  getLessonEngagement,
+  getQuizAttemptsForStudent,
+  getTaskSubmissionsForLesson,
+  updateTaskMark,
 };

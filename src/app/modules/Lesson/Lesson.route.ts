@@ -18,6 +18,33 @@ router.get(
   lessonController.getTaskSubmissionsByStudent
 );
 
+//getTeacherLessonsWithStats
+router.get(
+  "/teachers/:teacherId/lessons",
+  lessonController.getTeacherLessonsWithStats
+);
+
+//getLessonEngagement
+router.get(
+  "/lesson/:lessonId/engagement",
+  lessonController.getLessonEngagement
+);
+
+// getQuizAttemptsForStudent
+router.get(
+  "/lesson/:lessonId/students/:studentId/quiz-attempts",
+  lessonController.getQuizAttemptsForStudent
+);
+
+//! getTaskSubmissionsForLesson
+router.get(
+  "/lesson/:lessonId/task-submissions",
+  lessonController.getTaskSubmissionsForLesson
+);
+
+//! updateTaskMark
+router.put("/submissions/:submissionId/mark", lessonController.updateTaskMark);
+
 // get all lesson
 router.get("/", lessonController.getAllLessons);
 
