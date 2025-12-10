@@ -228,6 +228,57 @@ const submitTaskResponse = async (
   };
 };
 
+//reterive single user from the database
+const getQuizAttemptsByStudent = async (studentId: string) => {
+  const attempts = await prisma.quizAttempt.findMany({
+    where: { studentId },
+    include: {
+      lesson: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+    orderBy: { submittedAt: "desc" },
+  });
+
+  return attempts.map((a) => ({
+    attemptId: a.id,
+    lessonId: a.lessonId,
+    lessonTitle: a.lesson.title,
+    score: a.score,
+    submittedAt: a.submittedAt,
+  }));
+};
+
+//reterive single user from the database
+const getTaskSubmissionsByStudent = async (studentId: string) => {
+  const submissions = await prisma.taskSubmission.findMany({
+    where: { studentId },
+    include: {
+      lessonTask: {
+        include: {
+          lesson: {
+            select: { id: true, title: true },
+          },
+        },
+      },
+    },
+    orderBy: { submittedAt: "desc" },
+  });
+
+  return submissions.map((s) => ({
+    submissionId: s.id,
+    lessonId: s.lessonTask.lesson.id,
+    lessonTitle: s.lessonTask.lesson.title,
+    taskId: s.taskId,
+    content: s.content,
+    mark: s.mark,
+    submittedAt: s.submittedAt,
+  }));
+};
+
 const updateLesson = async (id: string, data: any) => {
   const existingLesson = await prisma.lesson.findUnique({ where: { id } });
   if (!existingLesson) {
@@ -252,6 +303,8 @@ export const lessonService = {
   getSingleLesson,
   submitQuizAttempt,
   submitTaskResponse,
+  getQuizAttemptsByStudent,
+  getTaskSubmissionsByStudent,
   updateLesson,
   deleteLesson,
 };

@@ -70,6 +70,30 @@ const submitTaskResponse = catchAsync(async (req: Request, res: Response) => {
   });
 })
 
+//getQuizAttemptsByStudent
+const getQuizAttemptsByStudent = catchAsync(async (req: Request, res: Response) => {
+  const result = await lessonService.getQuizAttemptsByStudent(req.params.studentId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Quiz attempts retrieved successfully",
+    data: result,
+  });
+})
+
+// getTaskSubmissionsByStudent;
+const getTaskSubmissionsByStudent = catchAsync(async (req: Request, res: Response) => {
+  const result = await lessonService.getTaskSubmissionsByStudent(req.params.studentId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Task submissions retrieved successfully",
+    data: result,
+  });
+})
+
+
+
 const updateLesson = catchAsync(async (req: Request, res: Response) => {
   const result = await lessonService.updateLesson(req.params.id, req.body);
   sendResponse(res, {
@@ -96,6 +120,8 @@ export const lessonController = {
   getSingleLesson,
   submitQuizAttempt,
   submitTaskResponse,
+  getQuizAttemptsByStudent,
+  getTaskSubmissionsByStudent,
   updateLesson,
   deleteLesson,
 };

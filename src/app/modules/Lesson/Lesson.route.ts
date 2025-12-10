@@ -6,6 +6,18 @@ const router = Router();
 // create lesson
 router.post("/create", lessonController.createLesson);
 
+// get all quiz attempts by student
+router.get(
+  "/students/:studentId/quizzes",
+  lessonController.getQuizAttemptsByStudent
+);
+
+// get all task submissions by student
+router.get(
+  "/students/:studentId/tasks",
+  lessonController.getTaskSubmissionsByStudent
+);
+
 // get all lesson
 router.get("/", lessonController.getAllLessons);
 
