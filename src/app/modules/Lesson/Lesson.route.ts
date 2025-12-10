@@ -36,14 +36,20 @@ router.get(
   lessonController.getQuizAttemptsForStudent
 );
 
-//! getTaskSubmissionsForLesson
+// getTaskSubmissionsForLesson
 router.get(
   "/lesson/:lessonId/task-submissions",
   lessonController.getTaskSubmissionsForLesson
 );
 
-//! updateTaskMark
+// updateTaskMark
 router.put("/submissions/:submissionId/mark", lessonController.updateTaskMark);
+
+//getStudentProgressSummary
+router.get(
+  "/lesson/:lessonId/progress-summary",
+  lessonController.getStudentProgressSummary
+);
 
 // get all lesson
 router.get("/", lessonController.getAllLessons);

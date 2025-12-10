@@ -440,6 +440,67 @@ const updateTaskMark = async (submissionId: string, mark: number) => {
   };
 };
 
+// reterive single user from the database
+const getStudentProgressSummary = async (lessonId: string) => {
+  // Find the lesson’s task (1 per lesson)
+  const task = await prisma.lessonTask.findFirst({
+    where: { lessonId },
+  });
+
+  // Fetch ALL students
+  const students = await prisma.student.findMany({
+    orderBy: { name: "asc" },
+  });
+
+  // For each student check: viewed, quiz, task
+  const summary = await Promise.all(
+    students.map(async (student) => {
+      // Viewed?
+      const viewed = await prisma.lessonView.findFirst({
+        where: { lessonId, studentId: student.id },
+      });
+
+      // Quiz submission?
+      const quiz = await prisma.quizAttempt.findFirst({
+        where: { lessonId, studentId: student.id },
+        orderBy: { submittedAt: "desc" },
+      });
+
+      // Task submission?
+      const submission = task
+        ? await prisma.taskSubmission.findFirst({
+            where: { taskId: task.id, studentId: student.id },
+          })
+        : null;
+
+      // Calculate "activities completed"
+      // 1 = viewed
+      // +1 = quiz submitted
+      // +1 = task submitted
+      const completedCount =
+        (viewed ? 1 : 0) + (quiz ? 1 : 0) + (submission ? 1 : 0);
+
+      return {
+        studentId: student.id,
+        studentName: student.name,
+
+        viewed: !!viewed,
+        quizSubmitted: !!quiz,
+        quizScore: quiz?.score || null,
+
+        taskSubmitted: !!submission,
+        taskMark: submission?.mark || null,
+
+        completedCount, // number of activities completed
+        totalActivities: 3, // viewed + quiz + task
+      };
+    })
+  );
+
+  return summary;
+};
+
+
 export const lessonService = {
   createLesson,
   getAllLessons,
@@ -455,4 +516,5 @@ export const lessonService = {
   getQuizAttemptsForStudent,
   getTaskSubmissionsForLesson,
   updateTaskMark,
+  getStudentProgressSummary
 };

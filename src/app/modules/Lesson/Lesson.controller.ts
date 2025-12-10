@@ -191,6 +191,21 @@ const updateTaskMark = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//getStudentProgressSummary
+const getStudentProgressSummary = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await lessonService.getStudentProgressSummary(
+      req.params.lessonId
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Student progress summary retrieved successfully",
+      data: result,
+    });
+  }
+);
+
 export const lessonController = {
   createLesson,
   getAllLessons,
@@ -206,4 +221,5 @@ export const lessonController = {
   getQuizAttemptsForStudent,
   getTaskSubmissionsForLesson,
   updateTaskMark,
+  getStudentProgressSummary
 };
