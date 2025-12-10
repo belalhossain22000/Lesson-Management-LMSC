@@ -12,6 +12,12 @@ router.get("/", lessonController.getAllLessons);
 // get single lesson by id
 router.get("/:id", lessonController.getSingleLesson);
 
+// submit quiz attempt
+router.post("/lesson/:lessonId/quiz", lessonController.submitQuizAttempt);
+
+// submit task response
+router.post("/tasks/submission/:taskId", lessonController.submitTaskResponse);
+
 // update lesson
 router.put("/:id", lessonController.updateLesson);
 
