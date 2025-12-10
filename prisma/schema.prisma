@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String     @id @default(uuid())
+  name            String
+  email           String     @unique
+  isEmailVerified Boolean    @default(false)
+  password        String
+  role            UserRole   @default(STUDENT)
+  status          UserStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("Users")
+}
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+  STUDENT
+  TEACHER
+  SUPERVISOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+model Student {
+  id              String           @id @default(uuid())
+  name            String
+  email           String           @unique
+  role            UserRole         @default(STUDENT)
+  quizAttempts    QuizAttempt[]    @relation("StudentQuizAttempts")
+  taskSubmissions TaskSubmission[] @relation("StudentTaskSubmissions")
+  lessonViews     LessonView[]     @relation("StudentLessonViews")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("Students")
+}
+
+model Teacher {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      UserRole @default(TEACHER)
+  lessons   Lesson[] @relation("TeacherLessons")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Teachers")
+}
+
+model Lesson {
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  videoUrl      String?
+  teacherId     String
+  teacher       Teacher        @relation("TeacherLessons", fields: [teacherId], references: [id], onDelete: Cascade)
+  publishedAt   DateTime?
+  quizQuestions QuizQuestion[] @relation("LessonQuizQuestions")
+  lessonTasks   LessonTask[]   @relation("LessonTasks")
+  quizAttempts  QuizAttempt[]  @relation("LessonQuizAttempts")
+  lessonViews   LessonView[]   @relation("LessonLessonViews")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("Lessons")
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  lessonId      String
+  lesson        Lesson   @relation("LessonQuizQuestions", fields: [lessonId], references: [id], onDelete: Cascade)
+  questionText  String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctOption String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("QuizQuestions")
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid())
+  lessonId    String
+  studentId   String
+  submittedAt DateTime @default(now())
+  score       Int?
+  answers     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lesson  Lesson  @relation("LessonQuizAttempts", fields: [lessonId], references: [id], onDelete: Cascade)
+  student Student @relation("StudentQuizAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("QuizAttempts")
+}
+
+model LessonTask {
+  id        String   @id @default(uuid())
+  lessonId  String
+  taskText  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson      Lesson           @relation("LessonTasks", fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions TaskSubmission[] @relation("LessonTaskSubmissions")
+
+  @@map("LessonTasks")
+}
+
+model TaskSubmission {
+  id          String   @id @default(uuid())
+  taskId      String
+  studentId   String
+  submittedAt DateTime @default(now())
+  content     String
+  mark        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessonTask LessonTask @relation("LessonTaskSubmissions", fields: [taskId], references: [id], onDelete: Cascade)
+  student    Student    @relation("StudentTaskSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("TaskSubmissions")
+}
+
+model LessonView {
+  id        String   @id @default(uuid())
+  lessonId  String
+  studentId String
+  viewedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson  Lesson  @relation("LessonLessonViews", fields: [lessonId], references: [id], onDelete: Cascade)
+  student Student @relation("StudentLessonViews", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, studentId])
+  @@map("LessonViews")
+}
