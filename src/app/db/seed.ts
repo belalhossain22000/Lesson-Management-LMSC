@@ -12,7 +12,7 @@ async function main() {
   await prisma.student.deleteMany();
 
   console.log("🌱 Seeding teachers...");
-  const teachers = await prisma.teacher.createMany({
+  await prisma.teacher.createMany({
     data: [
       { name: "Alice Johnson", email: "alice@lmsc.org" },
       { name: "Bob Williams", email: "bob@lmsc.org" },
@@ -22,10 +22,10 @@ async function main() {
     ],
   });
 
-  const teacherList = await prisma.teacher.findMany();
+  const teachers = await prisma.teacher.findMany();
 
   console.log("🌱 Seeding students...");
-  const students = await prisma.student.createMany({
+  await prisma.student.createMany({
     data: [
       { name: "Student A", email: "studentA@example.com" },
       { name: "Student B", email: "studentB@example.com" },
@@ -35,120 +35,123 @@ async function main() {
     ],
   });
 
-  const studentList = await prisma.student.findMany();
-
-  console.log("🌱 Seeding lessons + quiz + tasks...");
-
-  const demoLessons = [
-    {
-      title: "Introduction to Calculus",
-      description:
-        "Learn the fundamentals of calculus including limits, derivatives, and integrals.",
-      videoUrl: "https://www.youtube.com/embed/WUvTyaaNkzM",
-    },
-    {
-      title: "Chemistry Basics",
-      description:
-        "Explore the periodic table, atomic structure, and basic chemical reactions.",
-      videoUrl: "https://www.youtube.com/embed/cRnkQqUbQOU",
-    },
-    {
-      title: "Physics: Motion and Forces",
-      description:
-        "Understanding Newtons laws of motion and force interactions.",
-      videoUrl: "https://www.youtube.com/embed/9u0EWekI3BA",
-    },
-    {
-      title: "Biology: Cell Structure",
-      description:
-        "Learn about prokaryotic and eukaryotic cells, organelles, and their functions.",
-      videoUrl: "https://www.youtube.com/embed/I04FN0pj7bQ",
-    },
-    {
-      title: "Calculus – Derivatives",
-      description: "Understanding the rate of change.",
-      videoUrl: "https://www.youtube.com/embed/WUvTyaaNkzM",
-    },
+  const topics = [
+    "Introduction to Calculus",
+    "Limits & Continuity",
+    "Derivatives",
+    "Integrals",
+    "Probability Basics",
+    "Newton’s Laws",
+    "Electric Circuits",
+    "Organic Chemistry",
+    "Cell Biology",
+    "Kinematics",
+    "Geometry Basics",
+    "Fractions Fundamentals",
+    "Human Digestive System",
+    "Solar System Overview",
+    "Photosynthesis",
+    "Algebra Essentials",
+    "States of Matter",
+    "Water Cycle",
+    "Atomic Structure",
+    "Chemical Reactions",
   ];
 
-  for (let i = 0; i < 5; i++) {
-    const teacher = teacherList[i];
+  // related video URLs (looped)
+  const videos = [
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM",
+    "https://www.youtube.com/embed/WUvTyaaNkzM"
+  ];
 
-    const lesson = await prisma.lesson.create({
-      data: {
-        title: demoLessons[i].title,
-        description: demoLessons[i].description,
-        videoUrl: demoLessons[i].videoUrl,
-        teacherId: teacher.id,
-        publishedAt: new Date(),
-      },
-    });
+  console.log("🌱 Seeding lessons + quizzes + tasks...");
 
-    // Add 5 quiz questions per lesson
-    const questions = [
-      {
-        questionText: "What is the main concept?",
-        optionA: "A",
-        optionB: "B",
-        optionC: "C",
-        optionD: "D",
-        correctOption: "A",
-      },
-      {
-        questionText: "Which statement is correct?",
-        optionA: "Option 1",
-        optionB: "Option 2",
-        optionC: "Option 3",
-        optionD: "Option 4",
-        correctOption: "B",
-      },
-      {
-        questionText: "Choose the best answer.",
-        optionA: "Answer A",
-        optionB: "Answer B",
-        optionC: "Answer C",
-        optionD: "Answer D",
-        correctOption: "C",
-      },
-      {
-        questionText: "What describes this lesson?",
-        optionA: "Statement A",
-        optionB: "Statement B",
-        optionC: "Statement C",
-        optionD: "Statement D",
-        correctOption: "D",
-      },
-      {
-        questionText: "Identify the correct concept.",
-        optionA: "Yes",
-        optionB: "No",
-        optionC: "Maybe",
-        optionD: "Depends",
-        correctOption: "A",
-      },
-    ];
+  let lessonCount = 0;
 
-    for (const q of questions) {
-      await prisma.quizQuestion.create({
+  for (const teacher of teachers) {
+    for (let i = 0; i < 10; i++) {
+      const index = (lessonCount + i) % topics.length;
+
+      const lesson = await prisma.lesson.create({
         data: {
-          lessonId: lesson.id,
-          questionText: q.questionText,
-          optionA: q.optionA,
-          optionB: q.optionB,
-          optionC: q.optionC,
-          optionD: q.optionD,
-          correctOption: q.correctOption,
+          title: topics[index],
+          description: `This lesson covers important concepts about ${topics[index]}.`,
+          videoUrl: videos[index % videos.length],
+          teacherId: teacher.id,
+          publishedAt: new Date(),
         },
       });
-    }
 
-    // Add lesson task
-    await prisma.lessonTask.create({
-      data: {
-        lessonId: lesson.id,
-        taskText: `Write a short summary about ${demoLessons[i].title}`,
-      },
-    });
+      // Generate unique quizzes for each lesson
+      const quizQuestions = [
+        {
+          questionText: `What is the key idea behind ${topics[index]}?`,
+          optionA: "Concept A",
+          optionB: "Concept B",
+          optionC: "Concept C",
+          optionD: "Concept D",
+          correctOption: "A",
+        },
+        {
+          questionText: `Which statement about ${topics[index]} is true?`,
+          optionA: "Option 1",
+          optionB: "Option 2",
+          optionC: "Option 3",
+          optionD: "Option 4",
+          correctOption: "B",
+        },
+        {
+          questionText: `How does ${topics[index]} relate to real-world applications?`,
+          optionA: "Method A",
+          optionB: "Method B",
+          optionC: "Method C",
+          optionD: "Method D",
+          correctOption: "C",
+        },
+        {
+          questionText: `Identify the correct concept in ${topics[index]}.`,
+          optionA: "Type A",
+          optionB: "Type B",
+          optionC: "Type C",
+          optionD: "Type D",
+          correctOption: "D",
+        },
+        {
+          questionText: `Which example demonstrates ${topics[index]}?`,
+          optionA: "Example A",
+          optionB: "Example B",
+          optionC: "Example C",
+          optionD: "Example D",
+          correctOption: "A",
+        },
+      ];
+
+      for (const q of quizQuestions) {
+        await prisma.quizQuestion.create({
+          data: {
+            lessonId: lesson.id,
+            ...q,
+          },
+        });
+      }
+
+      await prisma.lessonTask.create({
+        data: {
+          lessonId: lesson.id,
+          taskText: `Write a short summary explaining the topic: ${topics[index]}.`,
+        },
+      });
+
+      lessonCount++;
+    }
   }
 
   console.log("🌱 Seeding completed successfully!");

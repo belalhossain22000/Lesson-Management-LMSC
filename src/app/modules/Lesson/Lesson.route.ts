@@ -4,7 +4,7 @@ import { lessonController } from "./Lesson.controller";
 const router = Router();
 
 // create lesson
-router.post("/create", lessonController.createLesson);
+router.post("/bulk/create", lessonController.createLesson);
 
 // get all quiz attempts by student
 router.get(

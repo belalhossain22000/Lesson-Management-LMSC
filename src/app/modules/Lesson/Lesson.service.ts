@@ -10,7 +10,7 @@ import { QuizAnswerPayload } from "./Lesson.interface";
 
 const createLesson = async (data: any) => {
   //if you wanna add logic here
-  const result = await prisma.lesson.create({ data });
+  const result = await prisma.lesson.createMany({ data });
   return result;
 };
 
