@@ -31,8 +31,8 @@ Built with **Node.js + Express + TypeScript + Prisma + PostgreSQL**.
 ## 1️⃣ Clone the repo
 
 ```sh
-git clone https://github.com/<your-repo>/lmsc-backend.git
-cd lmsc-backend
+git clone https://github.com/belalhossain22000/Lesson-Management-LMSC.git
+cd Lesson-Management-LMSC
 ```
 
 ## 2️⃣ Install dependencies
