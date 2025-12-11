@@ -41,29 +41,33 @@ async function main() {
 
   const demoLessons = [
     {
-      title: "Kinematics Basics",
-      description: "Velocity, displacement, acceleration fundamentals.",
-      videoUrl: "https://example.com/kinematics",
+      title: "Introduction to Calculus",
+      description:
+        "Learn the fundamentals of calculus including limits, derivatives, and integrals.",
+      videoUrl: "https://www.youtube.com/embed/WUvTyaaNkzM",
     },
     {
-      title: "Newton’s Laws",
-      description: "Understanding force, inertia, and acceleration.",
-      videoUrl: "https://example.com/newton",
+      title: "Chemistry Basics",
+      description:
+        "Explore the periodic table, atomic structure, and basic chemical reactions.",
+      videoUrl: "https://www.youtube.com/embed/cRnkQqUbQOU",
     },
     {
-      title: "Electric Circuits",
-      description: "Basics of current, voltage, and resistance.",
-      videoUrl: "https://example.com/circuits",
+      title: "Physics: Motion and Forces",
+      description:
+        "Understanding Newtons laws of motion and force interactions.",
+      videoUrl: "https://www.youtube.com/embed/9u0EWekI3BA",
     },
     {
-      title: "Organic Chemistry",
-      description: "Introduction to hydrocarbons and functional groups.",
-      videoUrl: "https://example.com/organic",
+      title: "Biology: Cell Structure",
+      description:
+        "Learn about prokaryotic and eukaryotic cells, organelles, and their functions.",
+      videoUrl: "https://www.youtube.com/embed/I04FN0pj7bQ",
     },
     {
       title: "Calculus – Derivatives",
       description: "Understanding the rate of change.",
-      videoUrl: "https://example.com/derivatives",
+      videoUrl: "https://www.youtube.com/embed/WUvTyaaNkzM",
     },
   ];
 
