@@ -1,303 +1,258 @@
 
 
-# **LMSC E-Learning Platform**
+# 📘 **LMSC E-Learning Backend**
 
-A full-stack Learning Management System (LMS) built with:
+This is the **backend API** for the LMSC Learning Management System.
+It supports both **Student** and **Teacher** workflows, providing a complete REST API for lessons, quizzes, tasks, authentication, and engagement tracking.
 
-* **Backend:** Node.js, Express.js, Prisma ORM, PostgreSQL
-* **Frontend:** Next.js (App Router), TypeScript, ShadCN UI
-* **Authentication:** JWT-based login (Student + Teacher roles)
-* **Features:** Lessons, Quizzes, Tasks, Submissions, Teacher Dashboard, Student Dashboard
+Built with **Node.js + Express + TypeScript + Prisma + PostgreSQL**.
 
 ---
 
-# 🚀 **Features**
+# 🛠 **Tech Stack**
 
-### 👨‍🎓 Student Side
-
-* Login as **student**
-* View available lessons (pagination + search)
-* Watch lesson videos
-* Take quizzes (auto-graded)
-* Submit tasks
-* View quiz score, task submission result
-* Progress statistics
-
-### 👩‍🏫 Teacher Side
-
-* Login as **teacher**
-* View teacher-specific lessons
-* Lesson engagement dashboard
-* View student quiz attempts
-* View + grade student task submissions
-* Manage lesson analytics
-
-### 🛠 System Features
-
-* REST API
-* Prisma ORM migrations
-* PostgreSQL database
-* Seed script for test data
-* Role-based access
-* Real-time computed stats for dashboards
+| Feature    | Technology              |
+| ---------- | ----------------------- |
+| Runtime    | Node.js                 |
+| Framework  | Express.js              |
+| Language   | TypeScript              |
+| ORM        | Prisma ORM              |
+| Database   | PostgreSQL              |
+| Auth       | JWT (simple login)      |
+| Validation | Zod / custom validation |
+| Logging    | Custom middleware       |
+| Dev Tools  | Nodemon, TS-Node        |
+| API Style  | REST                    |
 
 ---
 
-# 📦 **Tech Stack**
+# 🚀 **Setup & Run Instructions**
 
-| Layer            | Technology                                         |
-| ---------------- | -------------------------------------------------- |
-| Frontend         | Next.js (App Router), React, TypeScript, ShadCN UI |
-| Backend          | Express.js, TypeScript                             |
-| Database         | PostgreSQL                                         |
-| ORM              | Prisma                                             |
-| Auth             | JWT                                                |
-| Deployment-ready | Yes                                                |
+## 1️⃣ Clone the repo
 
----
-
-# ⚙️ **Prerequisites**
-
-Make sure you have installed:
-
-* **Node.js 18+**
-* **PostgreSQL 13+**
-* **npm or yarn**
-* **A `.env` file configured** (see below)
-
----
-
-# 🔧 **Environment Variables**
-
-Create `.env` in the backend root:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/lmsc_db?schema=public"
-
-JWT_SECRET="super-secret-key"
-JWT_EXPIRES_IN="30d"
-PORT=5000
+```sh
+git clone https://github.com/<your-repo>/lmsc-backend.git
+cd lmsc-backend
 ```
 
-Create `.env.local` in the Next.js frontend root:
+## 2️⃣ Install dependencies
 
-```env
-NEXT_PUBLIC_API_URL="http://localhost:5000/api/v1"
-```
-
----
-
-# 🗃 **Database Setup**
-
-### 1️⃣ Install dependencies
-
-```bash
+```sh
 npm install
 ```
 
-### 2️⃣ Generate Prisma Client
+## 3️⃣ Create `.env`
 
-```bash
-npx prisma generate
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/lmsc_db"
+
+JWT_SECRET="super-secret-key"
+EXPIRES_IN="30d"
+
+PORT=5000
 ```
 
-### 3️⃣ Run migrations
+## 4️⃣ Run Prisma migrations
 
-```bash
-npx prisma migrate dev --name init
+```sh
+npx prisma migrate dev
 ```
 
----
+## 5️⃣ Seed the database
 
-# 🌱 **Seed the Database**
+This creates sample teachers, students, lessons, quizzes, and tasks.
 
-The project includes a custom seed script that:
-
-* Clears old data
-* Creates teachers + students
-* Creates **10 lessons per teacher**
-* Generates quizzes + tasks automatically
-
-Run:
-
-```bash
+```sh
 npm run seed
 ```
 
-Or depending on package.json:
+(or)
 
-```bash
+```sh
 npx prisma db seed
 ```
 
----
+## 6️⃣ Start the server
 
-# ▶️ **Run Backend Server**
-
-```bash
+```sh
 npm run dev
 ```
 
-Server runs on:
+Backend runs at:
 
 ```
-http://localhost:5000
-```
-
----
-
-# ▶️ **Run Next.js Frontend**
-
-```bash
-npm run dev
-```
-
-Frontend runs on:
-
-```
-http://localhost:3000
+http://localhost:5000/api/v1
 ```
 
 ---
 
-# 📚 **Folder Structure (Backend)**
+# 🔐 **Sample Login Instructions (Required for Assignment)**
+
+Authentication is intentionally **simple**, as allowed in the specification.
+
+### Student Login
 
 ```
-src/
- ├── app/
- │    ├── modules/
- │    │    ├── lessons/
- │    │    ├── quizzes/
- │    │    ├── students/
- │    │    └── teachers/
- │    ├── middlewares/
- │    └── utils/
- ├── shared/
- │    └── prisma.ts
- └── server.ts
-prisma/
- ├── schema.prisma
- └── seed.ts
-```
-
----
-
-# 📚 **Folder Structure (Frontend)**
-
-```
-app/
- ├── (student)/
- │     ├── dashboard/
- │     └── lessons/
- ├── (teacher)/
- │     ├── dashboard/
- │     └── lessons/
- ├── login/
- └── layout.tsx
-lib/
- ├── auth-context.tsx
- └── api-client.ts
-components/ui/
-```
-
----
-
-# 🔐 **Authentication Flow**
-
-### Student Login (`POST /auth/simple-login`)
-
-Body example:
-
-```json
+POST /auth/simple-login
 {
   "email": "studentA@example.com",
   "role": "student"
 }
 ```
 
-Returns JWT with:
+### Teacher Login
 
-```json
+```
+POST /auth/simple-login
 {
-  "id",
-  "name",
-  "email",
-  "role"
+  "email": "alice@lmsc.org",
+  "role": "teacher"
 }
 ```
 
-Frontend stores token in memory inside `AuthContext`.
+Returns JWT:
+
+```json
+{
+  "token": "xxxxxxxx",
+  "id": "...",
+  "email": "...",
+  "role": "student or teacher",
+  "name": "User Name"
+}
+```
+
+Frontend uses this token for all authenticated routes.
 
 ---
 
-# 🧠 **Assumptions**
+# 📚 **Core API Endpoints**
 
-1. Each teacher must have **at least 10 lessons**.
-2. Each lesson must contain:
+### 🔹 Authentication
 
-   * 1 video
-   * 5 quiz questions
-   * 1 task
-3. A student can submit:
+* `POST /auth/simple-login`
 
-   * 1 quiz attempt per lesson
-   * 1 task submission per lesson
-4. Teachers can:
+### 🔹 Lessons (Public / Student)
 
-   * View all engagement
-   * Update task marks anytime
-5. Lessons, quizzes, and tasks are already created by seeding.
-6. Pagination and search are handled on server side.
+* `GET /lessons?page=&limit=&searchTerm=`
+* `GET /lessons/:id`
 
----
+### 🔹 Student Lesson Stats
 
-# 🧪 **Testing Accounts**
+* `GET /lessons/students/:studentId/dashboard-stats`
 
-### 👩‍🏫 Teachers
+### 🔹 Student Quiz
 
-```
-alice@lmsc.org
-bob@lmsc.org
-charlie@lmsc.org
-diana@lmsc.org
-edward@lmsc.org
-```
+* `POST /lessons/lesson/:lessonId/quiz`
+* `GET /lessons/students/:studentId/quizzes`
 
-### 👨‍🎓 Students
+### 🔹 Student Task Submission
 
-```
-studentA@example.com
-studentB@example.com
-studentC@example.com
-studentD@example.com
-studentE@example.com
-```
+* `POST /lessons/tasks/submission/:taskId`
+* `GET /lessons/students/:studentId/tasks`
 
-All roles use simple login (no password).
+### 🔹 Teacher Dashboard
+
+* `GET /lessons/teachers/:teacherId/dashboard-stats`
+* `GET /lessons/teachers/:teacherId/lessons`
+
+### 🔹 Teacher Lesson Engagement
+
+* `GET /lessons/lesson/:lessonId/engagement`
+
+### 🔹 Teacher Task Marking
+
+* `GET /lessons/lesson/:lessonId/task-submissions`
+* `PUT /lessons/submissions/:submissionId/mark`
+
+The API is structured for easy extension and clear separation of responsibilities.
 
 ---
 
-# 🚀 Deployment Notes
+# 🗃 **Database Schema Overview**
 
-* For production, set:
+Key models:
 
-  * `DATABASE_URL` to cloud PostgreSQL
-  * Use HTTPS
-  * Set long JWT secrets
-* Prisma migrations must run before server starts.
+```
+Teacher
+Student
+Lesson
+QuizQuestion
+QuizAttempt
+LessonTask
+TaskSubmission
+LessonView
+```
+
+### Relationships:
+
+* **Teacher 1 → Many Lessons**
+* **Lesson 1 → Many QuizQuestions**
+* **Lesson 1 → 1 LessonTask**
+* **Student 1 → Many QuizAttempts**
+* **Student 1 → Many TaskSubmissions**
 
 ---
 
-# 🧩 **Common Commands**
+# 🧪 **Test Commands**
 
-| Action                 | Command                    |
-| ---------------------- | -------------------------- |
-| Reset DB               | `npx prisma migrate reset` |
-| View DB UI             | `npx prisma studio`        |
-| Generate Prisma Client | `npx prisma generate`      |
-| Seed Data              | `npm run seed`             |
+To run tests (if implemented):
+
+```sh
+npm run test
+```
+
+The spec did NOT require full test coverage, but code structure is test-friendly.
+
+---
+
+# 🧩 **Assumptions**
+
+The assignment allowed flexible implementation.
+These assumptions were made for clarity and completeness:
+
+1. Authentication is **email + role only** (no password required).
+2. A student may have **one quiz attempt** and **one task submission** per lesson.
+3. “Viewed” means the student opened the lesson detail page.
+4. Teachers can only manage lessons they created.
+5. Pagination defaults to **10 items per page**.
+6. Search applies to **title and description** only.
+7. Quiz scoring is auto-calculated in backend.
+8. Task marks are teacher-controlled; the latest mark overwrites previous ones.
+9. Lesson video URLs use **YouTube embed format**.
+10. Seed script creates **10 lessons per teacher**, each with 5 quiz questions and 1 task.
 
 
 
+## 🚧 **Known Limitations / Future Improvements**
+
+The project meets the core requirements, but several enhancements could be added with more time:
+
+1. **Video Uploading** — Replace YouTube links with real video uploading to AWS/GCP using presigned URLs.
+2. **Chunked Uploading** — Support multipart/chunked uploads for large video files, resumable uploads, and background processing.
+3. **Real-Time Engagement** — Add WebSockets/SSE to show teachers live student activity (views, quiz attempts).
+4. **Caching & Performance** — Add Redis caching for dashboard stats and analytics, plus DB indexing for scalability.
+5. **Enhanced Error Handling** — Centralized error formatter, retry logic on network failures, and better validation.
+6. **Advanced Analytics** — Detailed quiz breakdown, student mastery tracking, and timeline visualization.
+7. **RBAC Authorization** — More granular permission system for teachers, admins, and students.
+8. **Admin Dashboard** — For managing users, lessons, stats, and platform configuration.
+9. **Rich Lesson Editor** — Upload PDFs, images, attachments, and create custom quiz question types.
+10. **Comprehensive Tests** — Add Jest + Supertest unit/integration tests and Playwright/Cypress E2E tests.
+
+
+
+# 📬 **Submission**
+
+Please review:
+
+* This backend repo
+* The corresponding frontend repo
+* Seed instructions and setup steps included here
+
+Everything required to run and evaluate the app locally is included.
+
+---
+
+# 🎉 Thank you!
 
 
