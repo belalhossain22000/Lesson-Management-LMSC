@@ -206,6 +206,36 @@ const getStudentProgressSummary = catchAsync(
   }
 );
 
+//getStudentDashboardStats
+const getStudentDashboardStats = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await lessonService.getStudentDashboardStats(
+      req.params.studentId
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Student dashboard stats retrieved successfully",
+      data: result,
+    });
+  }
+)
+
+// getTeacherDashboardStats
+const getTeacherDashboardStats = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await lessonService.getTeacherDashboardStats(
+      req.params.teacherId
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Teacher dashboard stats retrieved successfully",
+      data: result,
+    });
+  }
+)
+
 export const lessonController = {
   createLesson,
   getAllLessons,
@@ -221,5 +251,7 @@ export const lessonController = {
   getQuizAttemptsForStudent,
   getTaskSubmissionsForLesson,
   updateTaskMark,
-  getStudentProgressSummary
+  getStudentProgressSummary,
+  getStudentDashboardStats,
+  getTeacherDashboardStats
 };

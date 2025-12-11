@@ -13,7 +13,7 @@ model User {
   email           String     @unique
   isEmailVerified Boolean    @default(false)
   password        String
-  role            UserRole   @default(STUDENT)
+  role            UserRole   @default(student)
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
@@ -22,11 +22,10 @@ model User {
 }
 
 enum UserRole {
-  ADMIN
-  SUPER_ADMIN
-  STUDENT
-  TEACHER
-  SUPERVISOR
+  admin
+  superAdmin
+  teacher
+  student
 }
 
 enum UserStatus {
@@ -39,7 +38,7 @@ model Student {
   id              String           @id @default(uuid())
   name            String
   email           String           @unique
-  role            UserRole         @default(STUDENT)
+  role            UserRole         @default(student)
   quizAttempts    QuizAttempt[]    @relation("StudentQuizAttempts")
   taskSubmissions TaskSubmission[] @relation("StudentTaskSubmissions")
   lessonViews     LessonView[]     @relation("StudentLessonViews")
@@ -53,7 +52,7 @@ model Teacher {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  role      UserRole @default(TEACHER)
+  role      UserRole @default(teacher)
   lessons   Lesson[] @relation("TeacherLessons")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

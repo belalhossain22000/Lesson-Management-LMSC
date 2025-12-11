@@ -58,11 +58,9 @@ const getAllLessons = async (
         : {
             createdAt: "desc",
           },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      videoUrl: true,
+
+    include: {
+      teacher: true,
     },
   });
   const total = await prisma.lesson.count({
@@ -297,7 +295,7 @@ const deleteLesson = async (id: string) => {
 };
 
 // reterive single user from the database
-const getTeacherLessonsWithStats = async (teacherId: string) => {
+export const getTeacherLessonsWithStats = async (teacherId: string) => {
   // Get all lessons owned by teacher
   const lessons = await prisma.lesson.findMany({
     where: { teacherId },
@@ -308,14 +306,33 @@ const getTeacherLessonsWithStats = async (teacherId: string) => {
     orderBy: { createdAt: "desc" },
   });
 
-  return lessons.map((lesson) => ({
-    lessonId: lesson.id,
-    title: lesson.title,
-    viewedCount: lesson.lessonViews.length,
-    completedQuizCount: new Set(lesson.quizAttempts.map((q) => q.studentId))
-      .size,
-  }));
+  return lessons.map((lesson) => {
+    // Unique students who completed quiz
+    const completedQuizStudentIds = new Set(
+      lesson.quizAttempts.map((a) => a.studentId)
+    );
+
+    // Average score
+    let avgScore = 0;
+    if (lesson.quizAttempts.length > 0) {
+      const totalScore = lesson.quizAttempts.reduce(
+        (sum, a) => sum + (a.score ?? 0),
+        0
+      );
+      avgScore = Math.round(totalScore / lesson.quizAttempts.length);
+    }
+
+    return {
+      lessonId: lesson.id,
+      title: lesson.title,
+      description: lesson.description,
+      viewedCount: lesson.lessonViews.length,
+      completedQuizCount: completedQuizStudentIds.size,
+      avgScore,
+    };
+  });
 };
+
 
 // reterive single user from the database
 const getLessonEngagement = async (lessonId: string) => {
@@ -500,6 +517,107 @@ const getStudentProgressSummary = async (lessonId: string) => {
   return summary;
 };
 
+//student dashboard stats
+const getStudentDashboardStats = async (studentId: string) => {
+  const totalLessons = await prisma.lesson.count();
+
+  const completedQuiz = await prisma.quizAttempt.findMany({
+    where: { studentId },
+    select: { lessonId: true },
+  });
+
+  const completedTasks = await prisma.taskSubmission.findMany({
+    where: { studentId },
+    include: {
+      lessonTask: true,
+    },
+  });
+
+  const completedLessonIds = new Set<string>([
+    ...completedQuiz.map((q) => q.lessonId),
+    ...completedTasks.map((t) => t.lessonTask.lessonId),
+  ]);
+
+  const completedLessons = completedLessonIds.size;
+
+  const allAttempts = await prisma.quizAttempt.findMany({
+    where: { studentId },
+    select: { score: true },
+  });
+
+  let avgScore = 0;
+
+  if (allAttempts.length > 0) {
+    const totalScore = allAttempts.reduce((sum, a) => sum + (a.score ?? 0), 0);
+    avgScore = Math.round(totalScore / allAttempts.length);
+  }
+
+  // For demo: assume each completed lesson = 1 hour
+  const learningHours = completedLessons * 1;
+
+  return {
+    totalLessons,
+    completedLessons,
+    avgScore,
+    learningHours,
+  };
+};
+
+// teacher dashboard stats
+const getTeacherDashboardStats = async (teacherId: string) => {
+  const lessons = await prisma.lesson.findMany({
+    where: { teacherId },
+    select: { id: true },
+  });
+
+  const lessonIds = lessons.map((l) => l.id);
+  const totalLessons = lessonIds.length;
+
+  if (totalLessons === 0) {
+    return {
+      totalLessons: 0,
+      studentsEngaged: 0,
+      quizSubmissions: 0,
+      taskSubmissions: 0,
+    };
+  }
+
+  const lessonViews = await prisma.lessonView.findMany({
+    where: {
+      lessonId: { in: lessonIds },
+    },
+    select: { studentId: true },
+  });
+
+  const uniqueStudentsEngaged = new Set(lessonViews.map((v) => v.studentId))
+    .size;
+
+  const quizSubmissions = await prisma.quizAttempt.count({
+    where: {
+      lessonId: { in: lessonIds },
+    },
+  });
+
+  const tasks = await prisma.lessonTask.findMany({
+    where: { lessonId: { in: lessonIds } },
+    select: { id: true },
+  });
+
+  const taskIds = tasks.map((t) => t.id);
+
+  const taskSubmissions = await prisma.taskSubmission.count({
+    where: {
+      taskId: { in: taskIds },
+    },
+  });
+
+  return {
+    totalLessons,
+    studentsEngaged: uniqueStudentsEngaged,
+    quizSubmissions,
+    taskSubmissions,
+  };
+};
 
 export const lessonService = {
   createLesson,
@@ -516,5 +634,7 @@ export const lessonService = {
   getQuizAttemptsForStudent,
   getTaskSubmissionsForLesson,
   updateTaskMark,
-  getStudentProgressSummary
+  getStudentProgressSummary,
+  getStudentDashboardStats,
+  getTeacherDashboardStats,
 };

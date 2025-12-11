@@ -51,6 +51,17 @@ router.get(
   lessonController.getStudentProgressSummary
 );
 
+//getStudentDashboardStats
+router.get(
+  "/teachers/:teacherId/dashboard-stats",
+  lessonController.getTeacherDashboardStats
+);
+
+// getStudentDashboardStats
+router.get(
+  "/students/:studentId/dashboard-stats",
+  lessonController.getStudentDashboardStats
+)
 // get all lesson
 router.get("/", lessonController.getAllLessons);
 
