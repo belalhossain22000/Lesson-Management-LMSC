@@ -8,7 +8,7 @@ const changePasswordValidationSchema = z.object({
 const LoginValidationSchema = z.object({
   email: z.string().email({ message: "Invalid email format" }),
 
-  role: z.enum(["STUDENT", "TEACHER"], {
+  role: z.enum(["student", "teacher"], {
     required_error: "Role is required",
     invalid_type_error: "Invalid role",
   }),
